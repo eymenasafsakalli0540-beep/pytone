@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Mini Projeler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #15131f;
+    --panel: #1e1b2e;
+    --line: #322e4a;
+    --text: #ece9f5;
+    --muted: #9a95b3;
+    --accent: #ffb84d;
+    --accent-ink: #2a1c00;
+    --blue: #7c9cff;
+    --good: #5fd39a;
+    --bad: #ff7a8a;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  header { padding: 40px 20px 8px; max-width: 980px; margin: 0 auto; }
+  h1 { font-size: clamp(28px, 5vw, 44px); margin: 0 0 6px; letter-spacing: -0.02em; }
+  header p { margin: 0; color: var(--muted); }
+  main { max-width: 980px; margin: 0 auto; padding: 20px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tab {
+    background: var(--panel); color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 12px; font: inherit; text-align: left; cursor: pointer;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .tab .ico { font-size: 24px; }
+  .tab .name { font-weight: 500; font-size: 15px; }
+  .tab:hover { border-color: var(--blue); }
+  .tab[aria-selected="true"] { border-color: var(--accent); background: #2a2440; }
+
+  .panel {
+    margin-top: 20px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+    min-height: 260px;
+  }
+  .panel h2 { margin: 0 0 16px; font-size: 22px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: end; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+  input, select {
+    background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; font: inherit; min-width: 0; width: 160px;
+  }
+  input:focus, select:focus, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .btn {
+    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px;
+    padding: 10px 18px; font: inherit; font-weight: 700; cursor: pointer;
+  }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn:hover { filter: brightness(1.08); }
+  .out { margin-top: 14px; font-size: 18px; min-height: 28px; }
+  .out.good { color: var(--good); }
+  .out.bad { color: var(--bad); }
+  .muted { color: var(--muted); font-size: 14px; }
+
+  /* Calculator */
+  .calc { max-width: 280px; }
+  .calc .screen {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px; text-align: right; font-size: 28px; min-height: 60px;
+    overflow-x: auto; white-space: nowrap; margin-bottom: 10px;
+  }
+  .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .keys button {
+    background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px 0; font: inherit; font-size: 18px; cursor: pointer;
+  }
+  .keys button.op { color: var(--accent); }
+  .keys button.eq { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .keys button:hover { border-color: var(--blue); }
+
+  /* Dice */
+  .dice { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+  .die {
+    width: 64px; height: 64px; background: #f4f2fb; color: #1a1726; border-radius: 12px;
+    display: grid; place-items: center; font-size: 34px; font-weight: 700;
+  }
+
+  /* Hangman */
+  .word { font-size: 32px; letter-spacing: 0.3em; margin: 10px 0; font-weight: 700; }
+  .letters { display: flex; flex-wrap: wrap; gap: 6px; max-width: 520px; }
+  .letters button {
+    width: 38px; height: 38px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; font: inherit; cursor: pointer;
+  }
+  .letters button:disabled { opacity: 0.35; cursor: default; }
+  svg.gallows { width: 140px; height: 160px; stroke: var(--text); stroke-width: 4; fill: none; stroke-linecap: round; }
+
+  /* Password */
+  .pass {
+    background: var(--bg); border: 1px dashed var(--line); border-radius: 8px;
+    padding: 12px 14px; font-family: ui-monospace, Consolas, monospace; font-size: 18px;
+    word-break: break-all;
+  }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 20px 50px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .die.roll { animation: roll 0.35s ease; }
+    @keyframes roll { from { transform: rotate(-90deg) scale(0.7); } to { transform: none; } }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Python Mini Projeler</h1>
+  <p>Hepsi tarayıcıda çalışır. API ve internet bağlantısı gerekmez.</p>
+</header>
+
+<main>
+  <div class="grid" role="tablist" id="tabs"></div>
+  <section class="panel" id="panel" aria-live="polite"></section>
+</main>
+
+<footer>Python öğren, eğlen, portfolyona ekle!</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var rnd = function (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; };
+  var num = function (el) { return parseFloat(String(el.value).replace(",", ".")); };
+
+  /* ---------- Araçlar ---------- */
+  var tools = [];
+
+  /* 1) Hesap makinesi */
+  tools.push({ id: "calc", ico: "🧮", name: "Hesap Makinesi", render: function (p) {
+    p.innerHTML =
+      '<h2>Hesap Makinesi</h2><div class="calc">' +
+      '<div class="screen" id="scr">0</div><div class="keys" id="keys"></div></div>';
+    var keys = ["C","(",")","÷","7","8","9","×","4","5","6","−","1","2","3","+","0",".","⌫","="];
+    var scr = $("#scr", p), keysEl = $("#keys", p), expr = "";
+    keys.forEach(function (k) {
+      var b = document.createElement("button");
+      b.textContent = k;
+      if ("÷×−+".indexOf(k) > -1) b.className = "op";
+      if (k === "=") b.className = "eq";
+      b.addEventListener("click", function () { press(k); });
+      keysEl.appendChild(b);
+    });
+    function show() { scr.textContent = expr || "0"; }
+    function press(k) {
+      if (k === "C") expr = "";
+      else if (k === "⌫") expr = expr.slice(0, -1);
+      else if (k === "=") {
+        try {
+          var e = expr.replace(/÷/g, "/").replace(/×/g, "*").replace(/−/g, "-");
+          if (!/^[0-9+\-*/().\s]+$/.test(e)) throw new Error("bad");
+          var r = Function('"use strict"; return (' + e + ')')();
+          if (!isFinite(r)) throw new Error("inf");
+          expr = String(Math.round(r * 1e10) / 1e10);
+        } catch (err) { expr = ""; scr.textContent = "Hata"; return; }
+      } else expr += k;
+      show();
+    }
+  }});
+
+  /* 2) Zar atma */
+  tools.push({ id: "dice", ico: "🎲", name: "Zar Atma", render: function (p) {
+    p.innerHTML =
+      '<h2>Zar Atma</h2><div class="row"><label>Zar sayısı' +
+      '<input type="number" id="cnt" min="1" max="10" value="2"></label>' +
+      '<button class="btn" id="go">Zarları at</button></div>' +
+      '<div class="dice" id="dice"></div><div class="out" id="out"></div>';
+    $("#go", p).addEventListener("click", function () {
+      var n = Math.min(10, Math.max(1, parseInt($("#cnt", p).value, 10) || 1));
+      var box = $("#dice", p); box.innerHTML = ""; var sum = 0;
+      for (var i = 0; i < n; i++) {
+        var v = rnd(1, 6); sum += v;
+        var d = document.createElement("div");
+        d.className = "die roll"; d.textContent = v; box.appendChild(d);
+      }
+      $("#out", p).textContent = "Toplam: " + sum;
+    });
+  }});
+
+  /* 3) Sayı tahmin oyunu */
+  tools.push({ id: "guess", ico: "❓", name: "Sayı Tahmin", render: function (p) {
+    p.innerHTML =
+      '<h2>Sayı Tahmin Oyunu</h2><p class="muted">1 ile 100 arasında bir sayı tuttum.</p>' +
+      '<div class="row"><label>Tahminin<input type="number" id="g" min="1" max="100"></label>' +
+      '<button class="btn" id="go">Tahmin et</button>' +
+      '<button class="btn ghost" id="new">Yeni oyun</button></div>' +
+      '<div class="out" id="out"></div>';
+    var secret = rnd(1, 100), tries = 0, done = false;
+    var out = $("#out", p);
+    function guess() {
+      if (done) return;
+      var g = parseInt($("#g", p).value, 10);
+      if (isNaN(g) || g < 1 || g > 100) { out.className = "out bad"; out.textContent = "1 ile 100 arasında bir sayı gir."; return; }
+      tries++;
+      if (g < secret) { out.className = "out"; out.textContent = "Daha büyük! (Deneme: " + tries + ")"; }
+      else if (g > secret) { out.className = "out"; out.textContent = "Daha küçük! (Deneme: " + tries + ")"; }
+      else { out.className = "out good"; out.textContent = "Bildin! " + tries + " denemede buldun."; done = true; }
+    }
+    $("#go", p).addEventListener("click", guess);
+    $("#g", p).addEventListener("keydown", function (e) { if (e.key === "Enter") guess(); });
+    $("#new", p).addEventListener("click", function () {
+      secret = rnd(1, 100); tries = 0; done = false; out.textContent = ""; $("#g", p).value = "";
+    });
+  }});
+
+  /* 4) Bahşiş hesaplayıcı */
+  tools.push({ id: "tip", ico: "💰", name: "Bahşiş", render: function (p) {
+    p.innerHTML =
+      '<h2>Bahşiş Hesaplayıcı</h2><div class="row">' +
+      '<label>Hesap (₺)<input type="number" id="bill" min="0" step="0.01" value="500"></label>' +
+      '<label>Bahşiş (%)<input type="number" id="pct" min="0" value="10"></label>' +
+      '<label>Kişi sayısı<input type="number" id="ppl" min="1" value="1"></label>' +
+      '<button class="btn" id="go">Hesapla</button></div><div class="out" id="out"></div>';
+    $("#go", p).addEventListener("click", function () {
+      var bill = num($("#bill", p)), pct = num($("#pct", p)), ppl = Math.max(1, parseInt($("#ppl", p).value, 10) || 1);
+      var out = $("#out", p);
+      if (isNaN(bill) || isNaN(pct)) { out.className = "out bad"; out.textContent = "Geçerli sayılar gir."; return; }
+      var tip = bill * pct / 100, total = bill + tip;
+      out.className = "out";
+      out.innerHTML = "Bahşiş: <b>" + tip.toFixed(2) + " ₺</b><br>Toplam: <b>" + total.toFixed(2) +
+        " ₺</b><br>Kişi başı: <b>" + (total / ppl).toFixed(2) + " ₺</b>";
+    });
+  }});
+
+  /* 5) Taş kağıt makas */
+  tools.push({ id: "rps", ico: "✊", name: "Taş Kağıt Makas", render: function (p) {
+    p.innerHTML =
+      '<h2>Taş Kağıt Makas</h2><div class="row">' +
+      '<button class="btn" data-m="0">✊ Taş</button>' +
+      '<button class="btn" data-m="1">✋ Kağıt</button>' +
+      '<button class="btn" data-m="2">✌️ Makas</button></div>' +
+      '<div class="out" id="out">Bir seçim yap.</div><p class="muted" id="score">Sen 0 - 0 Bilgisayar</p>';
+    var icons = ["✊ Taş", "✋ Kağıt", "✌️ Makas"], me = 0, pc = 0;
+    p.querySelectorAll("button[data-m]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var u = parseInt(b.getAttribute("data-m"), 10), c = rnd(0, 2), out = $("#out", p), msg;
+        if (u === c) { msg = "Berabere!"; out.className = "out"; }
+        else if ((u + 1) % 3 === c) { msg = "Kaybettin!"; pc++; out.className = "out bad"; }   // kağıt taşı, makas kağıdı, taş makası yener
+        else { msg = "Kazandın!"; me++; out.className = "out good"; }
+        // Doğru kural: 0 taş, 1 kağıt, 2 makas. Taş makası yener (0>2), kağıt taşı (1>0), makas kağıdı (2>1).
+        out.textContent = "Sen: " + icons[u] + " | Bilgisayar: " + icons[c] + " → " + msg;
+        $("#score", p).textContent = "Sen " + me + " - " + pc + " Bilgisayar";
+      });
+    });
+  }});
+
+  /* 6) VKİ */
+  tools.push({ id: "bmi", ico: "⚖️", name: "VKİ Hesapla", render: function (p) {
+    p.innerHTML =
+      '<h2>Vücut Kitle İndeksi</h2><div class="row">' +
+      '<label>Boy (cm)<input type="number" id="h" min="50" max="250" value="170"></label>' +
+      '<label>Kilo (kg)<input type="number" id="w" min="10" max="400" value="70"></label>' +
+      '<button class="btn" id="go">Hesapla</button></div><div class="out" id="out"></div>';
+    $("#go", p).addEventListener("click", function () {
+      var h = num($("#h", p)) / 100, w = num($("#w", p)), out = $("#out", p);
+      if (!(h > 0) || !(w > 0)) { out.className = "out bad"; out.textContent = "Geçerli boy ve kilo gir."; return; }
+      var v = w / (h * h), d = v < 18.5 ? "Zayıf" : v < 25 ? "Normal" : v < 30 ? "Fazla kilolu" : "Obez";
+      out.className = "out";
+      out.innerHTML = "VKİ: <b>" + v.toFixed(1) + "</b> → " + d;
+    });
+  }});
+
+  /* 7) Şifre üretici */
+  tools.push({ id: "pass", ico: "🔑", name: "Şifre Üretici", render: function (p) {
+    p.innerHTML =
+      '<h2>Şifre Üretici</h2><div class="row">' +
+      '<label>Uzunluk<input type="number" id="len" min="4" max="64" value="16"></label>' +
+      '<label>Rakam<select id="dig"><option value="1">Evet</option><option value="0">Hayır</option></select></label>' +
+      '<label>Sembol<select id="sym"><option value="1">Evet</option><option value="0">Hayır</option></select></label>' +
+      '<button class="btn" id="go">Üret</button>' +
+      '<button class="btn ghost" id="copy">Kopyala</button></div>' +
+      '<div class="pass" id="out">—</div><p class="muted" id="msg"></p>';
+    function pick(s) {
+      var a = new Uint32Array(1); crypto.getRandomValues(a); return s.charAt(a[0] % s.length);
+    }
+    function gen() {
+      var len = Math.min(64, Math.max(4, parseInt($("#len", p).value, 10) || 16));
+      var sets = ["abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+      if ($("#dig", p).value === "1") sets.push("0123456789");
+      if ($("#sym", p).value === "1") sets.push("!@#$%&*?");
+      var all = sets.join(""), chars = [];
+      sets.forEach(function (s) { chars.push(pick(s)); });
+      while (chars.length < len) chars.push(pick(all));
+      for (var i = chars.length - 1; i > 0; i--) { var j = rnd(0, i), t = chars[i]; chars[i] = chars[j]; chars[j] = t; }
+      $("#out", p).textContent = chars.join("");
+    }
+    $("#go", p).addEventListener("click", gen);
+    $("#copy", p).addEventListener("click", function () {
+      var t = $("#out", p).textContent, msg = $("#msg", p);
+      if (t === "—") return;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(t).then(function () { msg.textContent = "Kopyalandı."; },
+          function () { msg.textContent = "Kopyalanamadı, elle seç."; });
+      } else msg.textContent = "Tarayıcın kopyalamayı desteklemiyor.";
+    });
+    gen();
+  }});
+
+  /* 8) Adam asmaca */
+  tools.push({ id: "hang", ico: "🪢", name: "Adam Asmaca", render: function (p) {
+    var words = ["python", "program", "bilgisayar", "klavye", "algoritma", "degisken", "fonksiyon", "dongu", "liste", "sozluk"];
+    var word, found, wrong;
+    p.innerHTML =
+      '<h2>Adam Asmaca</h2><div class="row" style="align-items:center">' +
+      '<svg class="gallows" id="svg" viewBox="0 0 140 160"></svg>' +
+      '<div><div class="word" id="word"></div><div class="muted" id="left"></div></div></div>' +
+      '<div class="letters" id="letters"></div><div class="out" id="out"></div>' +
+      '<button class="btn ghost" id="new">Yeni kelime</button>';
+    var parts = [
+      '<circle cx="90" cy="45" r="14"/>',
+      '<line x1="90" y1="59" x2="90" y2="100"/>',
+      '<line x1="90" y1="70" x2="70" y2="88"/>',
+      '<line x1="90" y1="70" x2="110" y2="88"/>',
+      '<line x1="90" y1="100" x2="72" y2="130"/>',
+      '<line x1="90" y1="100" x2="108" y2="130"/>'
+    ];
+    function start() {
+      word = words[rnd(0, words.length - 1)]; found = []; wrong = 0;
+      var l = $("#letters", p); l.innerHTML = "";
+      "abcdefghijklmnopqrstuvwxyz".split("").forEach(function (ch) {
+        var b = document.createElement("button"); b.textContent = ch;
+        b.addEventListener("click", function () { play(ch, b); }); l.appendChild(b);
+      });
+      $("#out", p).textContent = ""; $("#out", p).className = "out"; draw();
+    }
+    function draw() {
+      var shown = word.split("").map(function (c) { return found.indexOf(c) > -1 ? c : "_"; }).join(" ");
+      $("#word", p).textContent = shown;
+      $("#left", p).textContent = "Kalan hak: " + (6 - wrong);
+      var base = '<line x1="10" y1="150" x2="70" y2="150"/><line x1="40" y1="150" x2="40" y2="15"/>' +
+                 '<line x1="40" y1="15" x2="90" y2="15"/><line x1="90" y1="15" x2="90" y2="31"/>';
+      $("#svg", p).innerHTML = base + parts.slice(0, wrong).join("");
+    }
+    function end(msg, cls) {
+      var out = $("#out", p); out.textContent = msg; out.className = "out " + cls;
+      p.querySelectorAll(".letters button").forEach(function (b) { b.disabled = true; });
+    }
+    function play(ch, b) {
+      b.disabled = true;
+      if (word.indexOf(ch) > -1) found.push(ch); else wrong++;
+      draw();
+      var won = word.split("").every(function (c) { return found.indexOf(c) > -1; });
+      if (won) end("Tebrikler, kazandın!", "good");
+      else if (wrong >= 6) end("Kaybettin! Kelime: " + word, "bad");
+    }
+    $("#new", p).addEventListener("click", start);
+    start();
+  }});
+
+  /* 9) E-posta ayırıcı */
+  tools.push({ id: "mail", ico: "✉️", name: "E-posta Ayırıcı", render: function (p) {
+    p.innerHTML =
+      '<h2>E-posta Ayırıcı</h2><div class="row">' +
+      '<label>E-posta adresi<input type="text" id="m" placeholder="ad@ornek.com" style="width:260px"></label>' +
+      '<button class="btn" id="go">Ayır</button></div><div class="out" id="out"></div>';
+    function split() {
+      var v = $("#m", p).value.trim(), out = $("#out", p), parts = v.split("@");
+      if (parts.length !== 2 || !parts[0] || parts[1].indexOf(".") < 1) {
+        out.className = "out bad"; out.textContent = "Geçerli bir e-posta adresi gir."; return;
+      }
+      out.className = "out";
+      out.innerHTML = "Kullanıcı adı: <b></b><br>Alan adı: <b></b>";
+      var b = out.querySelectorAll("b"); b[0].textContent = parts[0]; b[1].textContent = parts[1];
+    }
+    $("#go", p).addEventListener("click", split);
+    $("#m", p).addEventListener("keydown", function (e) { if (e.key === "Enter") split(); });
+  }});
+
+  /* ---------- Sekmeler ---------- */
+  var tabs = $("#tabs"), panel = $("#panel");
+  function open(id) {
+    tabs.querySelectorAll(".tab").forEach(function (t) {
+      t.setAttribute("aria-selected", t.getAttribute("data-id") === id ? "true" : "false");
+    });
+    var t = tools.filter(function (x) { return x.id === id; })[0];
+    panel.innerHTML = ""; t.render(panel);
+  }
+  tools.forEach(function (t) {
+    var b = document.createElement("button");
+    b.className = "tab"; b.setAttribute("role", "tab"); b.setAttribute("data-id", t.id);
+    b.innerHTML = '<span class="ico"></span><span class="name"></span>';
+    b.querySelector(".ico").textContent = t.ico;
+    b.querySelector(".name").textContent = t.name;
+    b.addEventListener("click", function () { open(t.id); });
+    tabs.appendChild(b);
+  });
+  open(tools[0].id);
+})();
+</script>
+</body>
+</html>
