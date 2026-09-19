@@ -1,0 +1,1 @@
+# Bu proje statik bir sitedir, harici Python paketi gerekmez.
